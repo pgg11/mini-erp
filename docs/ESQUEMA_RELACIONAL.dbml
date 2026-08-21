@@ -1,0 +1,139 @@
+// ==========================================
+// 1. MÓDULO DE USUARIOS Y ACCESOS
+// ==========================================
+Table roles {
+  id serial [primary key]
+  name varchar // ej: "ADMIN", "OPERARIO"
+}
+
+Table users {
+  id serial [primary key]
+  role_id integer [ref: > roles.id]
+  username varchar [unique]
+  password_hash varchar
+  is_active boolean [default: true] // Soft delete
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ==========================================
+// 2. MÓDULO DE INVENTARIO Y CATÁLOGO
+// ==========================================
+Table base_materials {
+  id serial [primary key]
+  name varchar // ej: "Harina 0000"
+  unit_of_measure varchar // ej: "KG", "L", "UN"
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table commercial_materials {
+  id serial [primary key]
+  base_material_id integer [ref: > base_materials.id]
+  brand varchar // ej: "Blancaflor"
+  reference_cost decimal
+  current_stock decimal
+  version integer [default: 0] // Optimistic Locking
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table products {
+  id serial [primary key]
+  name varchar // ej: "Budín de Limón"
+  suggested_sale_price decimal
+  current_stock integer
+  version integer [default: 0] // Optimistic Locking
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table recipe_items {
+  product_id integer [ref: > products.id]
+  base_material_id integer [ref: > base_materials.id]
+  quantity_needed decimal
+  
+  Indexes {
+    (product_id, base_material_id) [pk] // Clave primaria compuesta
+  }
+}
+
+// ==========================================
+// 3. MÓDULO DE COMPRAS
+// ==========================================
+Table suppliers {
+  id serial [primary key]
+  name varchar
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table purchases {
+  id serial [primary key]
+  supplier_id integer [ref: > suppliers.id]
+  user_id integer [ref: > users.id] // Quién registró la compra
+  purchase_date timestamp
+  total_amount decimal
+  created_at timestamp
+}
+
+Table purchase_details {
+  id serial [primary key]
+  purchase_id integer [ref: > purchases.id]
+  commercial_material_id integer [ref: > commercial_materials.id]
+  quantity decimal
+  unit_price decimal
+}
+
+// ==========================================
+// 4. MÓDULO DE PRODUCCIÓN Y MERMAS
+// ==========================================
+Table daily_productions {
+  id serial [primary key]
+  user_id integer [ref: > users.id]
+  production_date timestamp
+  observations text
+  created_at timestamp
+}
+
+Table production_details {
+  id serial [primary key]
+  daily_production_id integer [ref: > daily_productions.id]
+  product_id integer [ref: > products.id]
+  quantity_produced integer
+}
+
+Table stock_adjustments {
+  id serial [primary key]
+  user_id integer [ref: > users.id]
+  commercial_material_id integer [ref: > commercial_materials.id]
+  adjustment_date timestamp
+  adjusted_quantity decimal // Positivo (ingreso) o Negativo (merma)
+  adjustment_type varchar // ej: "MERMA", "VENCIMIENTO", "ERROR_CONTEO"
+  reason text
+  created_at timestamp
+}
+
+// ==========================================
+// 5. MÓDULO DE FINANZAS Y SOCIOS
+// ==========================================
+Table partners {
+  id serial [primary key]
+  name varchar
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table capital_movements {
+  id serial [primary key]
+  partner_id integer [ref: > partners.id]
+  movement_date timestamp
+  amount decimal
+  movement_type varchar // ej: "IN" (Inversión), "OUT" (Retiro)
+  created_at timestamp
+}
