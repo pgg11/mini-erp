@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/purchases")
 public class PurchaseController {
@@ -20,5 +22,10 @@ public class PurchaseController {
     public ResponseEntity<Purchase> registerPurchase(@RequestBody Purchase purchase) {
         Purchase savedPurchase = purchaseService.registerPurchase(purchase);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPurchase);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Purchase>> getAll() {
+        return ResponseEntity.ok(purchaseService.getAllPurchases());
     }
 }

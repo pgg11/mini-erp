@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class PurchaseService {
@@ -72,5 +73,9 @@ public class PurchaseService {
 
         // 3. Guardar la compra (gracias a CascadeType.ALL, los detalles se guardan solos)
         return purchaseRepository.save(purchase);
+    }
+
+    public List<Purchase> getAllPurchases() {
+        return purchaseRepository.findAll();
     }
 }
