@@ -1,5 +1,6 @@
 package com.erp.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ public class PurchaseDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_id", nullable = false)
     private Purchase purchase;
@@ -22,8 +24,8 @@ public class PurchaseDetail {
     private CommercialMaterial commercialMaterial;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal quantity; // Cuánto se compró (ej. 50.00 kg)
+    private BigDecimal quantity;
 
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal unitPrice; // A qué precio unitario se pagó
+    private BigDecimal unitPrice;
 }
