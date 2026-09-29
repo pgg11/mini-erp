@@ -8,10 +8,7 @@ export default function PurchasesView() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  // Estado para nuevo Proveedor
   const [supplierName, setSupplierName] = useState('');
-
-  // Estados para nueva Compra (Cabecera + Renglones dinámicos)
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [details, setDetails] = useState([
     { commercialMaterialId: '', quantity: '', unitPrice: '' },
@@ -47,7 +44,6 @@ export default function PurchasesView() {
     setErrorMsg(null);
   };
 
-  // 1. Crear Proveedor
   const handleCreateSupplier = async (e) => {
     e.preventDefault();
     try {
@@ -60,7 +56,6 @@ export default function PurchasesView() {
     }
   };
 
-  // Manejo de renglones del ticket de compra
   const handleDetailChange = (index, field, value) => {
     const updated = [...details];
     updated[index][field] = value;
@@ -76,7 +71,6 @@ export default function PurchasesView() {
     setDetails(details.filter((_, i) => i !== index));
   };
 
-  // Cálculo en vivo del total del ticket
   const calculatePreviewTotal = () => {
     return details.reduce((acc, row) => {
       const q = parseFloat(row.quantity) || 0;
@@ -85,7 +79,6 @@ export default function PurchasesView() {
     }, 0);
   };
 
-  // 2. Registrar Compra
   const handleCreatePurchase = async (e) => {
     e.preventDefault();
     try {
@@ -186,10 +179,10 @@ export default function PurchasesView() {
                   onChange={(e) => handleDetailChange(idx, 'commercialMaterialId', e.target.value)}
                   required
                 >
-                  <option value="">-- Marca Comercial --</option>
+                  <option value="">-- Producto y Marca --</option>
                   {commercialMaterials.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.name} ({c.baseMaterial?.unitOfMeasure})
+                      {c.baseMaterial?.name} - {c.brand} ({c.baseMaterial?.unitOfMeasure})
                     </option>
                   ))}
                 </select>
@@ -278,7 +271,10 @@ export default function PurchasesView() {
                   {p.details?.map((d) => (
                     <div key={d.id}>
                       • {d.quantity} {d.commercialMaterial?.baseMaterial?.unitOfMeasure} de{' '}
-                      <strong>{d.commercialMaterial?.name}</strong> a ${d.unitPrice} c/u
+                      <strong>
+                        {d.commercialMaterial?.baseMaterial?.name} ({d.commercialMaterial?.brand})
+                      </strong>{' '}
+                      a ${d.unitPrice} c/u
                     </div>
                   ))}
                 </td>

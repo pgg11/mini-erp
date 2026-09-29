@@ -7,7 +7,6 @@ export default function ProductionView() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  // Estados para nueva Orden de Producción
   const [selectedRecipeId, setSelectedRecipeId] = useState('');
   const [batchMultiplier, setBatchMultiplier] = useState('1');
 
@@ -41,13 +40,13 @@ export default function ProductionView() {
 
   const selectedRecipe = recipes.find((r) => r.id === Number(selectedRecipeId));
 
-  // 1. Planificar Orden (Estado PLANNED)
+  // 1. Planificar Orden (Solo lotes enteros)
   const handleCreateOrder = async (e) => {
     e.preventDefault();
     try {
       await erpApi.post('/production-orders', {
         recipe: { id: Number(selectedRecipeId) },
-        batchMultiplier: Number(batchMultiplier),
+        batchMultiplier: parseInt(batchMultiplier, 10),
       });
       setSelectedRecipeId('');
       setBatchMultiplier('1');
@@ -58,7 +57,7 @@ export default function ProductionView() {
     }
   };
 
-  // 2. Completar Orden (Ejecuta transacción de descuento de stock y costeo)
+  // 2. Completar Orden
   const handleCompleteOrder = async (orderId) => {
     try {
       const res = await erpApi.post(`/production-orders/${orderId}/complete`);
@@ -73,7 +72,7 @@ export default function ProductionView() {
 
   return (
     <div className="module-container">
-      <h2>Control de Planta: Órdenes de Producción</h2>
+      <h2>Órdenes de Producción</h2>
 
       {errorMsg && <div className="alert alert-error"><strong>Error:</strong> {errorMsg}</div>}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
@@ -88,7 +87,7 @@ export default function ProductionView() {
               onChange={(e) => setSelectedRecipeId(e.target.value)}
               required
             >
-              <option value="">-- Seleccionar Receta (BOM) --</option>
+              <option value="">-- Seleccionar Receta --</option>
               {recipes.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.name} (Rinde: {r.yieldQuantity} unid.)
@@ -97,14 +96,14 @@ export default function ProductionView() {
             </select>
 
             <label style={{ fontSize: '0.85rem', color: '#475569' }}>
-              Multiplicador de Lote (Cantidad de recetas a fabricar):
+              Cantidad de Lotes a producir (Números enteros):
             </label>
             <input
               type="number"
-              step="0.5"
-              min="0.1"
+              step="1"
+              min="1"
               value={batchMultiplier}
-              onChange={(e) => setBatchMultiplier(e.target.value)}
+              onChange={(e) => setBatchMultiplier(e.target.value.replace(/\D/g, ''))}
               required
             />
 
@@ -118,11 +117,11 @@ export default function ProductionView() {
                   fontSize: '0.88rem',
                 }}
               >
-                <strong>Requerimiento estimado para este lote:</strong>
+                <strong>Requerimiento estimado para {batchMultiplier || 0} lote(s):</strong>
                 <ul style={{ margin: '0.4rem 0 0', paddingLeft: '1.2rem' }}>
                   {selectedRecipe.items?.map((item) => {
                     const totalNeeded = (
-                      parseFloat(item.quantity) * (parseFloat(batchMultiplier) || 0)
+                      parseFloat(item.quantity) * (parseInt(batchMultiplier, 10) || 0)
                     ).toFixed(2);
                     return (
                       <li key={item.id}>
@@ -161,7 +160,7 @@ export default function ProductionView() {
             <tr>
               <th>Orden</th>
               <th>Receta</th>
-              <th>Multiplicador (Lote)</th>
+              <th>Lotes</th>
               <th>Estado</th>
               <th>Costo Total Lote</th>
               <th>Fecha Finalización</th>
@@ -173,7 +172,7 @@ export default function ProductionView() {
               <tr key={o.id}>
                 <td><strong>#{o.id}</strong></td>
                 <td>{o.recipe?.name}</td>
-                <td>x{o.batchMultiplier}</td>
+                <td>x{parseInt(o.batchMultiplier, 10)}</td>
                 <td>
                   <span
                     className="badge"

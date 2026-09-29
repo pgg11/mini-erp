@@ -13,7 +13,7 @@ export default function InventoryView() {
   const [unitOfMeasure, setUnitOfMeasure] = useState('KG');
 
   // Estados para formulario de Insumo Comercial
-  const [commName, setCommName] = useState('');
+  const [commBrand, setCommBrand] = useState('');
   const [selectedBaseId, setSelectedBaseId] = useState('');
   const [initialCost, setInitialCost] = useState('');
 
@@ -69,19 +69,19 @@ export default function InventoryView() {
     }
   };
 
-  // 2. Crear Insumo Comercial
+  // 2. Crear Insumo Comercial (Usa la propiedad 'brand' que espera el backend)
   const handleCreateCommercial = async (e) => {
     e.preventDefault();
     try {
       await erpApi.post('/inventory/commercial-materials', {
-        name: commName,
+        brand: commBrand,
         baseMaterial: { id: Number(selectedBaseId) },
         currentStock: 0,
         referenceCost: initialCost ? Number(initialCost) : 0,
       });
-      setCommName('');
+      setCommBrand('');
       setInitialCost('');
-      showSuccess('Insumo comercial registrado.');
+      showSuccess('Marca comercial registrada correctamente.');
       fetchInventoryData();
     } catch (err) {
       showError(err);
@@ -131,7 +131,7 @@ export default function InventoryView() {
               <option value="L">Litros (L)</option>
               <option value="UNIT">Unidades (UNIT)</option>
             </select>
-            <button type="submit">Agregar Base</button>
+            <button type="submit">Agregar Insumo</button>
           </form>
 
           <table className="erp-table">
@@ -161,8 +161,8 @@ export default function InventoryView() {
             <input
               type="text"
               placeholder="Marca / Presentación (ej. Ledesma)"
-              value={commName}
-              onChange={(e) => setCommName(e.target.value)}
+              value={commBrand}
+              onChange={(e) => setCommBrand(e.target.value)}
               required
             />
             <select
@@ -173,7 +173,7 @@ export default function InventoryView() {
               <option value="">-- Asociar a Insumo Base --</option>
               {baseMaterials.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.name} ({b.unitOfMeasure})
+                  {b.name} — [Unidad: {b.unitOfMeasure}]
                 </option>
               ))}
             </select>
@@ -190,8 +190,8 @@ export default function InventoryView() {
           <table className="erp-table">
             <thead>
               <tr>
-                <th>Marca</th>
                 <th>Insumo Base</th>
+                <th>Marca Comercial</th>
                 <th>Stock Actual</th>
                 <th>Costo Ref.</th>
               </tr>
@@ -199,8 +199,8 @@ export default function InventoryView() {
             <tbody>
               {commercialMaterials.map((c) => (
                 <tr key={c.id}>
-                  <td><strong>{c.name}</strong></td>
                   <td>{c.baseMaterial?.name}</td>
+                  <td><strong>{c.brand}</strong></td>
                   <td className={c.currentStock <= 0 ? 'text-danger' : 'text-ok'}>
                     <strong>{c.currentStock}</strong> {c.baseMaterial?.unitOfMeasure}
                   </td>
@@ -214,17 +214,17 @@ export default function InventoryView() {
 
       {/* PANEL 3: AJUSTES DE STOCK Y MERMAS */}
       <section className="card" style={{ marginTop: '1.5rem' }}>
-        <h3>3. Ajustes de Stock y Mermas (Auditoría)</h3>
+        <h3>3. Ajustes de Stock y Mermas</h3>
         <form onSubmit={handleCreateAdjustment} className="erp-form-inline">
           <select
             value={adjMaterialId}
             onChange={(e) => setAdjMaterialId(e.target.value)}
             required
           >
-            <option value="">-- Seleccionar Marca Comercial --</option>
+            <option value="">-- Seleccionar Producto y Marca --</option>
             {commercialMaterials.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name} (Actual: {c.currentStock} {c.baseMaterial?.unitOfMeasure})
+                {c.baseMaterial?.name} - {c.brand} (Actual: {c.currentStock} {c.baseMaterial?.unitOfMeasure})
               </option>
             ))}
           </select>
@@ -260,7 +260,7 @@ export default function InventoryView() {
           <thead>
             <tr>
               <th>Fecha</th>
-              <th>Insumo Comercial</th>
+              <th>Producto y Marca</th>
               <th>Stock Previo</th>
               <th>Variación</th>
               <th>Nuevo Stock</th>
@@ -272,7 +272,11 @@ export default function InventoryView() {
             {adjustments.map((a) => (
               <tr key={a.id}>
                 <td>{new Date(a.createdAt).toLocaleString()}</td>
-                <td><strong>{a.commercialMaterial?.name}</strong></td>
+                <td>
+                  <strong>
+                    {a.commercialMaterial?.baseMaterial?.name} - {a.commercialMaterial?.brand}
+                  </strong>
+                </td>
                 <td>{a.previousStock}</td>
                 <td className={a.quantityChange < 0 ? 'text-danger' : 'text-ok'}>
                   {a.quantityChange > 0 ? `+${a.quantityChange}` : a.quantityChange}

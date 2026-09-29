@@ -11,7 +11,7 @@ function App() {
   return (
     <div className="erp-layout">
       <header className="erp-header">
-        <h1>Mini-ERP</h1>
+        <h1>Entre Migas</h1>
         <nav className="erp-nav">
           <button
             className={activeTab === 'inventory' ? 'active' : ''}
@@ -29,7 +29,7 @@ function App() {
             className={activeTab === 'recipes' ? 'active' : ''}
             onClick={() => setActiveTab('recipes')}
           >
-            Recetas (BOM)
+            Recetas
           </button>
           <button
             className={activeTab === 'production' ? 'active' : ''}

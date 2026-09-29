@@ -4,22 +4,24 @@ import erpApi from '../api/erpApi';
 export default function RecipesView() {
   const [recipes, setRecipes] = useState([]);
   const [baseMaterials, setBaseMaterials] = useState([]);
+  const [commercialMaterials, setCommercialMaterials] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  // Estados para nueva Receta
   const [recipeName, setRecipeName] = useState('');
   const [yieldQuantity, setYieldQuantity] = useState('1');
   const [items, setItems] = useState([{ baseMaterialId: '', quantity: '' }]);
 
   const fetchRecipesData = async () => {
     try {
-      const [recRes, baseRes] = await Promise.all([
+      const [recRes, baseRes, commRes] = await Promise.all([
         erpApi.get('/recipes'),
         erpApi.get('/inventory/base-materials'),
+        erpApi.get('/inventory/commercial-materials'),
       ]);
       setRecipes(recRes.data);
       setBaseMaterials(baseRes.data);
+      setCommercialMaterials(commRes.data);
     } catch (err) {
       showError(err);
     }
@@ -38,6 +40,14 @@ export default function RecipesView() {
   const showSuccess = (msg) => {
     setSuccessMsg(msg);
     setErrorMsg(null);
+  };
+
+  // Devuelve las marcas comerciales asociadas a un Insumo Base para mostrarlas como referencia
+  const getBrandsForBase = (baseId) => {
+    const brands = commercialMaterials
+      .filter((c) => c.baseMaterial?.id === baseId)
+      .map((c) => c.brand);
+    return brands.length > 0 ? `Marcas: ${brands.join(', ')}` : 'Sin marcas registradas';
   };
 
   const handleItemChange = (index, field, value) => {
@@ -103,9 +113,9 @@ export default function RecipesView() {
             </label>
             <input
               type="number"
-              step="0.01"
-              min="0.01"
-              placeholder="Rendimiento (ej. 1.00)"
+              step="1"
+              min="1"
+              placeholder="Rendimiento (ej. 1)"
               value={yieldQuantity}
               onChange={(e) => setYieldQuantity(e.target.value)}
               required
@@ -133,7 +143,7 @@ export default function RecipesView() {
                   <option value="">-- Seleccionar Insumo Base --</option>
                   {baseMaterials.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.name} ({b.unitOfMeasure})
+                      {b.name} [{b.unitOfMeasure}] — ({getBrandsForBase(b.id)})
                     </option>
                   ))}
                 </select>
