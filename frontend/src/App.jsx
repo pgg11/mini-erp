@@ -4,6 +4,7 @@ import PurchasesView from './components/PurchasesView';
 import RecipesView from './components/RecipesView';
 import ProductionView from './components/ProductionView';
 import LoginView from './components/LoginView';
+import UsersAdminView from './components/UsersAdminView';
 import logo from './assets/entre_migas_logo.jpeg';
 import './App.css';
 
@@ -66,6 +67,12 @@ function App() {
           >
             Órdenes de Producción
           </button>
+          <button
+            className={activeTab === 'users' ? 'active' : ''}
+            onClick={() => setActiveTab('users')}
+          >
+            Usuarios
+          </button>
           <button 
             onClick={handleLogout} 
             style={{ marginLeft: '1rem', background: 'transparent', border: '1px solid #fda4af', color: '#9f1239' }}
@@ -80,6 +87,7 @@ function App() {
         {activeTab === 'purchases' && <PurchasesView />}
         {activeTab === 'recipes' && <RecipesView />}
         {activeTab === 'production' && <ProductionView />}
+        {activeTab === 'users' && <UsersAdminView />}
       </main>
     </div>
   );
