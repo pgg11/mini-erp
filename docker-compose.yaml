@@ -1,45 +1,40 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
     container_name: erp-postgres
-    environment:
-      POSTGRES_USER: erp_user
-      POSTGRES_PASSWORD: erp_password
-      POSTGRES_DB: mini_erp_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - erp_network
-
-  backend:
-    build: ./backend
-    container_name: erp-backend
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/mini_erp_db
-      - SPRING_DATASOURCE_USERNAME=erp_user
-      - SPRING_DATASOURCE_PASSWORD=erp_password
+    restart: always
     env_file:
       - ./backend/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: 
+      context: ./backend
+    container_name: erp-backend
+    restart: always
     depends_on:
       - postgres
-    networks:
-      - erp_network
+    env_file:
+      - ./backend/.env
+    environment:
+      # Esta es la magia: le decimos a Java que no busque la BD en localhost, 
+      # sino en el contenedor llamado "postgres"
+      - DB_HOST=postgres 
+    ports:
+      - "8080:8080"
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
     container_name: erp-frontend
-    ports:
-      - "80:80"
+    restart: always
     depends_on:
       - backend
-    networks:
-      - erp_network
-
-networks:
-  erp_network:
-    driver: bridge
+    ports:
+      - "80:80"
 
 volumes:
   postgres_data:
