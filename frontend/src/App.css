@@ -16,20 +16,29 @@ body {
 /* Encabezado principal en rosa pastel cálido */
 .erp-header {
   background-color: #fce7f3;
-  color: #831843;
-  padding: 0.85rem 2rem;
+  padding: 0.2rem 2rem; /* Reducimos el padding vertical casi a cero para compensar el logo más alto */
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 2px solid #fbcfe8;
   box-shadow: 0 2px 6px rgba(244, 114, 182, 0.08);
+  /* Propiedades para fijar el navbar */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
+.logo-img {
+  width: 210px; 
+  height: 90px; /* Altura suficiente para abrazar el gorro y el texto inferior */
+  object-fit: cover;
+  object-position: center 45%; /* Bajamos el foco un 2% para asegurar que el "Made With Love" quede nítido */
+  mix-blend-mode: multiply;
+}
+
+
 .erp-header h1 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: -0.3px;
+  display: none;
 }
 
 .erp-nav {

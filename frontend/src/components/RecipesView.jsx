@@ -42,7 +42,6 @@ export default function RecipesView() {
     setErrorMsg(null);
   };
 
-  // Devuelve las marcas comerciales asociadas a un Insumo Base para mostrarlas como referencia
   const getBrandsForBase = (baseId) => {
     const brands = commercialMaterials
       .filter((c) => c.baseMaterial?.id === baseId)
@@ -81,7 +80,7 @@ export default function RecipesView() {
       setRecipeName('');
       setYieldQuantity('1');
       setItems([{ baseMaterialId: '', quantity: '' }]);
-      showSuccess('Receta (BOM) creada correctamente.');
+      showSuccess('Receta creada correctamente.');
       fetchRecipesData();
     } catch (err) {
       showError(err);
@@ -90,13 +89,12 @@ export default function RecipesView() {
 
   return (
     <div className="module-container">
-      <h2>Ingeniería de Producto: Recetas (BOM)</h2>
+      <h2>Gestión de Recetas</h2>
 
       {errorMsg && <div className="alert alert-error"><strong>Error:</strong> {errorMsg}</div>}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
 
       <div className="grid-2-cols">
-        {/* PANEL 1: FORMULARIO DE NUEVA RECETA */}
         <section className="card">
           <h3>1. Definir Nueva Receta</h3>
           <form onSubmit={handleCreateRecipe} className="erp-form">
@@ -122,7 +120,7 @@ export default function RecipesView() {
             />
 
             <div style={{ marginTop: '0.5rem' }}>
-              <strong>Composición de Insumos Base:</strong>
+              <strong>Composición de Ingredientes:</strong>
             </div>
 
             {items.map((row, idx) => (
@@ -173,9 +171,9 @@ export default function RecipesView() {
             <button
               type="button"
               onClick={addItemRow}
-              style={{ background: '#f1f5f9', color: '#0f172a', fontWeight: 600 }}
+              style={{ background: '#fdf2f8', color: '#9d174d', fontWeight: 600 }}
             >
-              + Agregar otro ingrediente a la receta
+              + Agregar otro ingrediente
             </button>
 
             <button type="submit" style={{ marginTop: '0.5rem' }}>
@@ -184,16 +182,15 @@ export default function RecipesView() {
           </form>
         </section>
 
-        {/* PANEL 2: CATÁLOGO DE RECETAS ACTIVAS */}
         <section className="card">
-          <h3>2. Recetas Activas en el Sistema</h3>
+          <h3>2. Recetas Activas</h3>
           <table className="erp-table">
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Producto / Receta</th>
                 <th>Rendimiento Base</th>
-                <th>Ingredientes (BOM)</th>
+                <th>Ingredientes</th>
               </tr>
             </thead>
             <tbody>

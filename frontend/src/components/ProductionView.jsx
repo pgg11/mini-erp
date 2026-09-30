@@ -40,7 +40,6 @@ export default function ProductionView() {
 
   const selectedRecipe = recipes.find((r) => r.id === Number(selectedRecipeId));
 
-  // 1. Planificar Orden (Solo lotes enteros)
   const handleCreateOrder = async (e) => {
     e.preventDefault();
     try {
@@ -50,14 +49,13 @@ export default function ProductionView() {
       });
       setSelectedRecipeId('');
       setBatchMultiplier('1');
-      showSuccess('Orden de producción planificada (Estado: PLANNED).');
+      showSuccess('Orden de producción planificada.');
       fetchProductionData();
     } catch (err) {
       showError(err);
     }
   };
 
-  // 2. Completar Orden
   const handleCompleteOrder = async (orderId) => {
     try {
       const res = await erpApi.post(`/production-orders/${orderId}/complete`);
@@ -77,8 +75,7 @@ export default function ProductionView() {
       {errorMsg && <div className="alert alert-error"><strong>Error:</strong> {errorMsg}</div>}
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
 
-      <div className="grid-2-cols">
-        {/* PANEL 1: LANZAR NUEVA ORDEN */}
+      <div style={{ maxWidth: '600px', marginBottom: '1.5rem' }}>
         <section className="card">
           <h3>1. Planificar Lote de Producción</h3>
           <form onSubmit={handleCreateOrder} className="erp-form">
@@ -95,7 +92,7 @@ export default function ProductionView() {
               ))}
             </select>
 
-            <label style={{ fontSize: '0.85rem', color: '#475569' }}>
+            <label style={{ fontSize: '0.85rem', color: '#4a2c35' }}>
               Cantidad de Lotes a producir (Números enteros):
             </label>
             <input
@@ -110,15 +107,15 @@ export default function ProductionView() {
             {selectedRecipe && (
               <div
                 style={{
-                  background: '#f8fafc',
+                  background: '#fff9fb',
                   padding: '0.75rem',
                   borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid #fce7f3',
                   fontSize: '0.88rem',
                 }}
               >
                 <strong>Requerimiento estimado para {batchMultiplier || 0} lote(s):</strong>
-                <ul style={{ margin: '0.4rem 0 0', paddingLeft: '1.2rem' }}>
+                <ul style={{ margin: '0.4rem 0 0', paddingLeft: '1.2rem', color: '#831843' }}>
                   {selectedRecipe.items?.map((item) => {
                     const totalNeeded = (
                       parseFloat(item.quantity) * (parseInt(batchMultiplier, 10) || 0)
@@ -136,25 +133,10 @@ export default function ProductionView() {
             <button type="submit">Crear Orden Planificada</button>
           </form>
         </section>
-
-        {/* PANEL 2: EXPLICACIÓN OPERATIVA */}
-        <section className="card">
-          <h3>Flujo Transaccional de Planta</h3>
-          <p style={{ fontSize: '0.92rem', lineHeight: '1.5', color: '#334155' }}>
-            Al presionar <strong>Completar y Descontar Stock</strong> en una orden planificada:
-          </p>
-          <ol style={{ fontSize: '0.9rem', lineHeight: '1.6', color: '#334155' }}>
-            <li>El backend busca todas las marcas comerciales activas asociadas a cada insumo base de la receta.</li>
-            <li>Descuenta las cantidades necesarias verificando el bloqueo optimista (<code>@Version</code>).</li>
-            <li>Calcula el costo real de fabricación del lote según el precio de las marcas utilizadas.</li>
-            <li>Si falta aunque sea una fracción de cualquier ingrediente, la transacción hace <em>rollback</em> completo e informa el faltante exacto.</li>
-          </ol>
-        </section>
       </div>
 
-      {/* PANEL 3: TABLERO DE ÓRDENES DE PRODUCCIÓN */}
-      <section className="card" style={{ marginTop: '1.5rem' }}>
-        <h3>2. Tablero de Órdenes de Producción</h3>
+      <section className="card">
+        <h3>2. Tablero de Órdenes</h3>
         <table className="erp-table">
           <thead>
             <tr>
@@ -177,8 +159,8 @@ export default function ProductionView() {
                   <span
                     className="badge"
                     style={{
-                      background: o.status === 'COMPLETED' ? '#dcfce7' : '#fef3c7',
-                      color: o.status === 'COMPLETED' ? '#166534' : '#92400e',
+                      background: o.status === 'COMPLETED' ? '#dcfce7' : '#fce7f3',
+                      color: o.status === 'COMPLETED' ? '#166534' : '#9d174d',
                     }}
                   >
                     {o.status}
@@ -197,7 +179,7 @@ export default function ProductionView() {
                     <button
                       onClick={() => handleCompleteOrder(o.id)}
                       style={{
-                        background: '#16a34a',
+                        background: '#10b981',
                         color: 'white',
                         border: 'none',
                         cursor: 'pointer',
@@ -207,7 +189,7 @@ export default function ProductionView() {
                       ✓ Completar y Descontar Stock
                     </button>
                   ) : (
-                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Cerrada</span>
+                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Cerrada</span>
                   )}
                 </td>
               </tr>
