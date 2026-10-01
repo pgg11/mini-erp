@@ -28,16 +28,13 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults()) // Respeta la configuración de CORS de WebConfig.java
             .csrf(csrf -> csrf.disable()) // Deshabilita CSRF (no es necesario en APIs REST con JWT)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // La puerta de entrada es pública
-                .anyRequest().authenticated() // El resto de la aplicación está bajo llave
+                .requestMatchers("/api/auth/**").permitAll() // El login sigue siendo público
+                .requestMatchers("/api/users/**").hasRole("ADMIN") // Solo los ADMIN pueden ver/crear usuarios
+                .anyRequest().authenticated() // El resto (ventas, stock) requiere estar logueado
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**").permitAll() // El login sigue siendo público
-            .requestMatchers("/api/users/**").hasRole("ADMIN") // NUEVO: Solo los ADMIN pueden ver/crear usuarios
-            .anyRequest().authenticated() // El resto (ventas, stock) requiere estar logueado
-        );
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
