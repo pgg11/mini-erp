@@ -33,7 +33,11 @@ public class SecurityConfig {
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**").permitAll() // El login sigue siendo público
+            .requestMatchers("/api/users/**").hasRole("ADMIN") // NUEVO: Solo los ADMIN pueden ver/crear usuarios
+            .anyRequest().authenticated() // El resto (ventas, stock) requiere estar logueado
+        );
 
         return http.build();
     }
