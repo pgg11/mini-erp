@@ -107,6 +107,20 @@ export default function InventoryView() {
     }
   };
 
+  // 4. Eliminar (Soft Delete) Insumo Comercial
+  const handleDeleteCommercial = async (id) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar esta marca comercial?")) {
+      return;
+    }
+    try {
+      await erpApi.delete(`/inventory/commercial-materials/${id}`);
+      showSuccess('Marca eliminada correctamente.');
+      fetchInventoryData(); // Recarga la tabla automáticamente para que desaparezca
+    } catch (err) {
+      showError(err);
+    }
+  };
+
   return (
     <div className="module-container">
       <h2>Gestión de Inventario y Catálogo</h2>
@@ -194,6 +208,7 @@ export default function InventoryView() {
                 <th>Marca Comercial</th>
                 <th>Stock Actual</th>
                 <th>Costo Ref.</th>
+                <th>Acciones</th> {/* NUEVA COLUMNA */}
               </tr>
             </thead>
             <tbody>
@@ -205,6 +220,24 @@ export default function InventoryView() {
                     <strong>{c.currentStock}</strong> {c.baseMaterial?.unitOfMeasure}
                   </td>
                   <td>${c.referenceCost}</td>
+                  <td>
+                    {/* NUEVO BOTÓN */}
+                    <button 
+                      onClick={() => handleDeleteCommercial(c.id)}
+                      style={{ 
+                        backgroundColor: '#dc2626', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '4px 8px', 
+                        borderRadius: '4px', 
+                        cursor: 'pointer',
+                        fontSize: '0.8rem'
+                      }}
+                      title="Eliminar marca"
+                    >
+                      Borrar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
