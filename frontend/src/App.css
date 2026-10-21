@@ -128,6 +128,48 @@ input:focus, select:focus {
   box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.2);
 }
 
+/* Contenedor del campo de contraseña con toggle */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.password-input-container input {
+  width: 100%;
+  padding-right: 2.75rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0.35rem;
+  cursor: pointer;
+  color: #9d174d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  line-height: 0;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  background-color: #fce7f3;
+  color: #831843;
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid #ec4899;
+  outline-offset: 1px;
+}
+
 /* Botones principales en rosa pastel */
 button[type="submit"] {
   background-color: #f472b6;
